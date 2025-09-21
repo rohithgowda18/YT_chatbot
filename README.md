@@ -1,122 +1,140 @@
 # 🎥 YouTube RAG Chatbot
 
-A **YouTube Retrieval-Augmented Generation (RAG) Chatbot** built with **Streamlit**, **LangChain**, and **Google Gemini**.  
-Ask questions about any YouTube video, and get answers directly from its transcript.
+> **Ask questions about any YouTube video and get AI-powered answers from its transcript**
 
-[![Streamlit Badge](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io/)
-[![Python](https://img.shields.io/badge/python-3.11-blue)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
----
+[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
 ## 🚀 Features
 
-- Automatically fetches transcripts from YouTube videos.
-- Splits long transcripts into manageable chunks.
-- Generates embeddings and stores them in FAISS for fast retrieval.
-- Uses **Google Generative AI** to answer questions based on transcripts.
-- Clean, interactive **Streamlit interface**.
-- Gracefully handles videos without transcripts.
+- **Smart Transcript Analysis**: Automatically fetches and processes YouTube video transcripts
+- **AI-Powered Q&A**: Uses Google Gemini for contextually accurate answers
+- **Vector Search**: FAISS-powered semantic search for relevant content retrieval
+- **Clean Interface**: Simple, responsive Streamlit web application
+- **Error Handling**: Gracefully manages videos without transcripts
 
 ---
 
-## 🖥️ Demo
+## 📦 Quick Start
 
-Try the live demo on Streamlit:  
-[🎬 Launch App](https://yourusername-streamlitapp.streamlit.app)
-
-> **Note:** Replace `yourusername` with your Streamlit Cloud username.
-
----
-
-## 📦 Installation (Local Setup)
-
-1. Clone the repository:
+### Installation
 
 ```bash
-git clone https://github.com/yourusername/your-repo.git
-cd your-repo
-Create a virtual environment (recommended):
+# Clone and navigate
+git clone https://github.com/yourusername/youtube-rag-chatbot.git
+cd youtube-rag-chatbot
 
-python -m venv env
-source env/bin/activate  # macOS/Linux
-env\Scripts\activate     # Windows
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
 
-
-Install dependencies:
-
+# Install dependencies
 pip install -r requirements.txt
 
+# Set up API key
+echo "GOOGLE_API_KEY=your_google_api_key_here" > .env
 
-Set environment variables (if needed) in a .env file:
+# Run the app
+streamlit run ytchat.py
+```
 
-# Example .env
-GOOGLE_API_KEY=your_google_api_key_here
+### Usage
 
+1. **Enter YouTube Video ID** (e.g., `dQw4w9WgXcQ` from the URL)
+2. **Ask your question** about the video content
+3. **Get AI-generated answers** based on the transcript
 
-Run the app:
+---
 
-streamlit run ytchatbot.py
-🛠️ Usage
+## 🔧 How It Works
 
-Open the app in your browser.
+```mermaid
+graph LR
+    A[YouTube ID] --> B[Get Transcript]
+    B --> C[Split Text]
+    C --> D[Create Embeddings]
+    D --> E[FAISS Search]
+    F[User Question] --> E
+    E --> G[AI Answer]
+```
 
-Enter a YouTube Video ID (e.g., Gfr50f6ZBvo).
+1. **Transcript Extraction**: Fetches video transcript using `youtube-transcript-api`
+2. **Text Processing**: Splits content into chunks with `LangChain`
+3. **Vector Storage**: Creates embeddings and stores in `FAISS` for fast retrieval
+4. **AI Generation**: Uses `Google Gemini` to generate contextual answers
 
-Enter a question about the video content.
+---
 
-Click Get Answer to receive responses based on the transcript.
+## 📁 Project Structure
 
-⚙️ How It Works
+```
+youtube-rag-chatbot/
+├── 📄 ytchat.py            # Main Streamlit application
+├── 📄 requirements.txt     # Python dependencies  
+├── 📄 README.md            # Documentation
+└── 📄 .gitignore           # Git ignore patterns
+```
 
-Transcript Retrieval:
-Fetches video transcript using youtube-transcript-api.
+---
 
-Text Splitting:
-Uses RecursiveCharacterTextSplitter to split long transcripts into smaller chunks.
+## 🚀 Deployment
 
-Embeddings & Vector Store:
-Chunks are converted to embeddings with HuggingFaceEmbeddings and stored in FAISS.
+### Streamlit Cloud
 
-Retrieval-Augmented Generation:
-Uses ChatGoogleGenerativeAI to answer questions based on retrieved chunks.
+1. Push code to GitHub repository
+2. Connect to [Streamlit Cloud](https://streamlit.io/cloud)  
+3. Add API key in secrets:
+   ```toml
+   GOOGLE_API_KEY = "your_api_key_here"
+   ```
+4. Deploy automatically
 
-Streamlit Frontend:
-Provides a clean interface to input video IDs and questions.
+### Docker
 
-📄 File Structure
-ytchatbot/
-│
-├─ ytchatbot.py         # Main Streamlit app
-├─ requirements.txt     # Python dependencies
-├─ README.md            # Project documentation
-└─ .gitignore           # Ignore sensitive/temporary files
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+EXPOSE 8501
+CMD ["streamlit", "run", "ytchat.py", "--server.port=8501", "--server.address=0.0.0.0"]
+```
 
-💡 Tips
+---
 
-Some YouTube videos may not have transcripts; the app handles this gracefully.
+## 🛠️ Tech Stack
 
-You can switch to other embedding models for better performance.
+| Component | Technology |
+|-----------|------------|
+| **Frontend** | Streamlit |
+| **LLM** | Google Gemini |
+| **Embeddings** | HuggingFace |
+| **Vector Store** | FAISS |
+| **Framework** | LangChain |
 
-Never push .env files with API keys to public repos.
+---
 
-🙌 Contributing
+## 🤝 Contributing
 
-Contributions, suggestions, and feedback are welcome!
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -m "Add feature"`
+4. Push and open Pull Request
 
-Fork the repository.
+---
 
-Create a new branch: git checkout -b feature-name.
+## 👨‍💻 Author
 
-Make your changes and commit: git commit -m "Add feature".
+**Rohith Gowda K**
+- GitHub: [@RohithGowdaK](https://github.com/RohithGowdaK)
+- Email: rohithgowdak18@gmail.com
 
-Push to your branch: git push origin feature-name.
+---
 
-Open a Pull Request.
+<div align="center">
 
+**⭐ Star this repo if it helped you! ⭐**
 
-📫 Contact
-
-GitHub: Rohith gowa K
-
-Email: rohithgowdak18@gmail.com
+</div>
