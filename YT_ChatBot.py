@@ -5,13 +5,20 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
-from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
 import os
 
-# Load environment variables
-load_dotenv()
+# Handle API keys for both local and Streamlit Cloud
+try:
+    if "GOOGLE_API_KEY" in st.secrets:
+        os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+    else:
+        load_dotenv()
+except:
+    # If secrets.toml doesn't exist, just load from .env file
+    load_dotenv()
 
 # Streamlit page config
 st.set_page_config(page_title="YouTube RAG", page_icon="🎥")
@@ -28,27 +35,30 @@ if st.button("Get Answer"):
     if video_id and question:
         try:
             with st.spinner("Processing..."):
-                # Your exact code - Step 1a: Document Ingestion
+                # Step 1: Document Ingestion - exactly from your notebook
                 try:
+                    # If you don't care which language, this returns the "best" one
                     ytt_api = YouTubeTranscriptApi()
                     transcript_list = ytt_api.fetch(video_id, languages=["en"])
+
+                    # Flatten it to plain text
                     transcript = " ".join(chunk.text for chunk in transcript_list)
                 except TranscriptsDisabled:
                     st.error("No captions available for this video.")
                     st.stop()
 
-                # Your exact code - Step 1b: Text Splitting
+                # Step 2: Text Splitting - exactly from your notebook
                 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
                 chunks = splitter.create_documents([transcript])
 
-                # Your exact code - Step 1c & 1d: Embedding Generation and Vector Store
+                # Step 3: Embedding Generation and Vector Store - exactly from your notebook
                 embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
                 vector_store = FAISS.from_documents(chunks, embedding)
 
-                # Your exact code - Step 2: Retrieval
+                # Step 4: Retrieval - exactly from your notebook
                 retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 4})
 
-                # Your exact code - Step 3: Augmentation
+                # Step 5: LLM and Prompt Setup - exactly from your notebook
                 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.2)
                 prompt = PromptTemplate(
                     template="""
@@ -62,7 +72,7 @@ if st.button("Get Answer"):
                     input_variables = ['context', 'question']
                 )
 
-                # Your exact code - Building a Chain
+                # Step 6: Chain Building - exactly from your notebook
                 def format_docs(retrieved_docs):
                     context_text = "\n\n".join(doc.page_content for doc in retrieved_docs)
                     return context_text
@@ -75,7 +85,7 @@ if st.button("Get Answer"):
                 parser = StrOutputParser()
                 main_chain = parallel_chain | prompt | llm | parser
 
-                # Your exact code - Step 4: Generation
+                # Step 7: Generation - exactly from your notebook
                 answer = main_chain.invoke(question)
 
             # Display answer
@@ -83,6 +93,11 @@ if st.button("Get Answer"):
             st.write(answer)
 
         except Exception as e:
-            st.error(f"Error: {str(e)}")
+            if "API key" in str(e).lower():
+                st.error("❌ Google API key error. Please check your API key configuration.")
+            elif "quota" in str(e).lower():
+                st.error("❌ API quota exceeded. Please try again later.")
+            else:
+                st.error(f"❌ Error: {str(e)}")
     else:
         st.warning("Please enter both video ID and question.")
