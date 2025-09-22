@@ -21,8 +21,8 @@
 
 ```bash
 # Clone and navigate
-git clone https://github.com/yourusername/youtube-rag-chatbot.git
-cd youtube-rag-chatbot
+git clone https://github.com/yourusername/YT_chatbot.git
+cd YT_chabot
 
 # Create virtual environment
 python -m venv venv
@@ -33,7 +33,6 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # Set up API key
-echo "GOOGLE_API_KEY=your_google_api_key_here" > .env
 
 # Run the app
 streamlit run ytchat.py
